@@ -2,7 +2,9 @@ package getter
 
 import (
 	"context"
+	"crypto/tls"
 	"fmt"
+	"net/http"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -340,6 +342,11 @@ func (g *S3Getter) newS3Client(
 		}
 	} else {
 		config := g.getAWSConfig(region, url, creds)
+		if g.client.Insecure {
+			config.HTTPClient = &http.Client{Transport: &http.Transport{
+				TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+			}}
+		}
 		sess = session.New(config)
 	}
 
